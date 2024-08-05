@@ -1,0 +1,17 @@
+spring.application.name=Test-task
+
+#Database
+spring.datasource.driver-class-name=****
+spring.datasource.url=****
+spring.datasource.username=****
+spring.datasource.password=****
+
+#Hibernate
+spring.jpa.properties.hibernate.dialect=****
+spring.jpa.properties.hibernate.show_sql=****
+
+#For http methods PUT, PATCH, DELETE
+spring.mvc.hidden.method.filter.enabled=****
+
+#For html views
+spring.thymeleaf.prefix=****
