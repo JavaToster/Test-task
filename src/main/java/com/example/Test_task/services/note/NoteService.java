@@ -1,9 +1,11 @@
 package com.example.Test_task.services.note;
 
+import com.example.Test_task.dao.containerOfNotes.ContainerOfNotesDAO;
 import com.example.Test_task.dao.note.NoteDAO;
 import com.example.Test_task.dao.person.PersonDAO;
 import com.example.Test_task.dto.note.EditNoteDTO;
 import com.example.Test_task.dto.note.NewNoteDTO;
+import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 
 import com.example.Test_task.util.enums.note.NoteStatus;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ public class NoteService {
     private final PersonDAO personDAO;
     private final NoteDAO noteDAO;
     private final NoteDTOValidator noteDTOValidator;
+    private final ContainerOfNotesDAO containerOfNotesDAO;
 
     public List<Note> findAllNotes() {
         return noteDAO.findAll();
@@ -36,7 +40,14 @@ public class NoteService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Note createNote(NewNoteDTO newNoteDTO, String email){
-        Note newNote = new Note(newNoteDTO.getTitle(), newNoteDTO.getDescription(), personDAO.findByEmail(email));
+        Note newNote = new Note(newNoteDTO.getTitle(), newNoteDTO.getDescription(),
+                personDAO.findByEmail(email));
+
+        ContainerOfNotes containerOfNotes = containerOfNotesDAO.getLastContainerOfNotes();
+        setNoteContainer(containerOfNotes, newNote);
+
+        noteDAO.save(newNote);
+        containerOfNotesDAO.save(containerOfNotes);
         return newNote;
     }
 
@@ -118,5 +129,15 @@ public class NoteService {
         }
 
         noteDAO.delete(note);
+    }
+
+    private void setNoteContainer(ContainerOfNotes container, Note note){
+        if(container.getNotes() == null || container.getNotes().isEmpty()){
+            container.setNotes(Collections.singletonList(note));
+            note.setContainer(container);
+            return;
+        }
+        container.getNotes().add(note);
+        note.setContainer(container);
     }
 }

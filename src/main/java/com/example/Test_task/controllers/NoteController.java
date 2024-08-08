@@ -3,16 +3,19 @@ package com.example.Test_task.controllers;
 import com.example.Test_task.dto.ErrorResponseDTO;
 import com.example.Test_task.dto.comment.CommentDTO;
 import com.example.Test_task.dto.comment.CreateCommentDTO;
+import com.example.Test_task.dto.containerOfNotes.ContainerOfNotesDTO;
 import com.example.Test_task.dto.note.*;
 import com.example.Test_task.models.comment.Comment;
 import com.example.Test_task.models.note.Note;
 import com.example.Test_task.security.PersonDetails;
 import com.example.Test_task.services.comment.CommentService;
+import com.example.Test_task.services.container.ContainerOfNotesService;
 import com.example.Test_task.services.note.NoteService;
 import com.example.Test_task.util.Convertor;
 import com.example.Test_task.util.exceptions.ApplicationRuntimeException;
 import com.example.Test_task.util.exceptions.person.PersonNotFoundException;
 import com.example.Test_task.util.exceptions.secutiry.ForbiddenException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +37,12 @@ public class NoteController {
     private final Convertor convertor;
     private final NoteService noteService;
     private final CommentService commentService;
+    private final ContainerOfNotesService containerOfNotesService;
 
     @GetMapping
-    public ResponseEntity<List<NoteDTO>> showAllNotes() {
-        List<NoteDTO> notes = convertor.convertToNoteDTO(noteService.findAllNotes());
-        return new ResponseEntity<>(notes, HttpStatus.OK);
+    public ResponseEntity<ContainerOfNotesDTO> showAllNotes(@RequestParam(value = "id", defaultValue = "-1") Long containerId) {
+        ContainerOfNotesDTO container = convertor.convertToContainerOfNotesDTO(containerOfNotesService.findByIdLastContainer(containerId));
+        return new ResponseEntity<>(container, HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -79,6 +83,13 @@ public class NoteController {
     public HttpStatus delete(@PathVariable("id") long id, Principal principal){
         noteService.delete(id, principal.getName());
         return HttpStatus.OK;
+    }
+
+    @PostMapping("/{id}/add_comment")
+    public ResponseEntity<CommentDTO> addCommentToNote(@PathVariable("id") long noteId, @RequestBody @Valid CreateCommentDTO createCommentDTO, Principal principal,
+                                                       BindingResult errors){
+        Comment createdComment = commentService.addComment(noteId, createCommentDTO, principal.getName(), errors);
+        return new ResponseEntity<>(convertor.convertToCommentDTO(createdComment), HttpStatus.OK);
     }
 
     @ExceptionHandler

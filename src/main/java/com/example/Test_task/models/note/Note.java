@@ -1,6 +1,7 @@
 package com.example.Test_task.models.note;
 
 import com.example.Test_task.models.comment.Comment;
+import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.person.Person;
 import com.example.Test_task.util.enums.note.NotePriority;
 import com.example.Test_task.util.enums.note.NoteStatus;
@@ -33,6 +34,9 @@ public class Note {
     private NotePriority priority;
     @OneToMany(mappedBy = "note")
     private List<Comment> comments;
+    @ManyToOne
+    @JoinColumn(name = "container_id", referencedColumnName = "id")
+    private ContainerOfNotes container;
 
     public Note(String title, String description, Person author){
         this.title = title;
