@@ -2,9 +2,7 @@ package com.example.Test_task.validatior.person;
 
 import com.example.Test_task.dao.person.PersonDAO;
 import com.example.Test_task.dto.auth.PersonRegisterRequestDTO;
-import com.example.Test_task.models.person.Person;
-import com.example.Test_task.services.person.PersonService;
-import com.example.Test_task.util.exceptions.PersonNotFoundException;
+import com.example.Test_task.util.exceptions.person.PersonNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -18,7 +16,7 @@ public class PersonDTOValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return clazz.getClass().equals(PersonRegisterRequestDTO.class);
+        return clazz.equals(PersonRegisterRequestDTO.class);
     }
 
     @Override

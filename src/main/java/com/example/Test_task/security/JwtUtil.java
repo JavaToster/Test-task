@@ -17,7 +17,7 @@ public class JwtUtil {
     private String secret;
 
     public String generateToken(String email){
-        Date expertionDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());
+        Date expertionDate = Date.from(ZonedDateTime.now().plusHours(3).toInstant());
 
         return JWT.create()
                 .withSubject("user details")

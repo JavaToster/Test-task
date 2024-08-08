@@ -6,13 +6,12 @@ import com.example.Test_task.models.person.Person;
 import com.example.Test_task.repositories.person.PersonRepository;
 import com.example.Test_task.security.JwtUtil;
 import com.example.Test_task.util.Convertor;
-import com.example.Test_task.util.exceptions.PersonNotFoundException;
-import com.example.Test_task.util.exceptions.PersonRegisterException;
+import com.example.Test_task.util.exceptions.person.PersonNotFoundException;
+import com.example.Test_task.util.exceptions.person.PersonRegisterException;
 import com.example.Test_task.validatior.person.PersonDTOValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.Test_task.security.PersonDetails;
@@ -29,13 +28,12 @@ public class PersonService implements UserDetailsService {
     private final PersonRepository personRepository;
     private final PersonDTOValidator personDTOValidator;
     private final Convertor convertor;
-    private final JwtUtil jwtUtil;
     private final PasswordEncoder encoder;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws PersonNotFoundException {
-        Person person = personRepository.findByEmail(username).orElseThrow(PersonNotFoundException::new);
+        Person person = personRepository.findByEmail(username).orElseThrow(() -> new PersonRegisterException("person with email not found"));
 
         return new PersonDetails(person);
     }

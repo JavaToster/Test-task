@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/error")
                         .permitAll()
-                        .anyRequest().hasAnyRole("USER"));
+                        .anyRequest().authenticated());
         http
                 .formLogin(login -> login
                         .loginPage("/auth/login").loginProcessingUrl("/process_login")

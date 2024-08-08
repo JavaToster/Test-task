@@ -7,7 +7,7 @@ import com.example.Test_task.dto.auth.PersonRegisterRequestDTO;
 import com.example.Test_task.dto.auth.RegisterResponseDTO;
 import com.example.Test_task.security.JwtUtil;
 import com.example.Test_task.services.person.PersonService;
-import com.example.Test_task.util.exceptions.PersonRegisterException;
+import com.example.Test_task.util.exceptions.person.PersonRegisterException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

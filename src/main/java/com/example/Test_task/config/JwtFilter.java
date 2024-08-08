@@ -3,7 +3,6 @@ package com.example.Test_task.config;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.Test_task.security.JwtUtil;
 import com.example.Test_task.services.person.PersonService;
-import com.example.Test_task.util.exceptions.PersonNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,15 +25,16 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if(authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer ")){
+
+        if (authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
 
-            try {
-                if (jwt.isBlank()) {
-                    System.out.println(1);
-                    response.sendError(400, "Invalid jwt token");
-
-                } else {
+            if (jwt.isBlank()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Invalid JWT Token in Bearer Header");
+                return;
+            } else {
+                try {
                     String username = jwtUtil.validateTokenAndRetrieveClaim(jwt);
                     UserDetails userDetails = personService.loadUserByUsername(username);
 
@@ -43,22 +43,17 @@ public class JwtFilter extends OncePerRequestFilter {
                                     userDetails.getPassword(),
                                     userDetails.getAuthorities());
 
-
                     if (SecurityContextHolder.getContext().getAuthentication() == null) {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
+                } catch (JWTVerificationException exc) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                            "Invalid JWT Token");
+                    return;
                 }
-                filterChain.doFilter(request, response);
-            }catch (JWTVerificationException e){
-                System.out.println(2);
-                response.sendError(400, "Invalid jwt token");
-            }catch (PersonNotFoundException e){
-                response.sendError(401, "not authenticated user");
-            }
-        }else{
-            response.sendError(401, "not authenticated user");
-        }
 
+            }
+        }
         filterChain.doFilter(request, response);
     }
 }

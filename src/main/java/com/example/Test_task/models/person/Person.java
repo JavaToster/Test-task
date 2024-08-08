@@ -1,7 +1,11 @@
 package com.example.Test_task.models.person;
 
+import com.example.Test_task.models.comment.Comment;
+import com.example.Test_task.models.note.Note;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -15,4 +19,10 @@ public class Person {
     private String email;
     @Column(name = "password")
     private String password;
+    @OneToMany(mappedBy = "author")
+    private List<Note> createdNotes;
+    @OneToMany(mappedBy = "executor")
+    private List<Note> executeNotes;
+    @OneToMany(mappedBy = "owner")
+    private List<Comment> comments;
 }
