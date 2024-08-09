@@ -14,6 +14,7 @@ import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 import com.example.Test_task.models.person.Person;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,7 @@ public class Convertor {
     }
 
     public List<NoteDTO> convertToNoteDTO(List<Note> notes){
-        List<NoteDTO> notesDTO = new ArrayList<>();
+        List<NoteDTO> notesDTO = new ArrayList<>();;
         notes.forEach(note -> notesDTO.add(convertToNoteDTO(note)));
         return notesDTO;
     }

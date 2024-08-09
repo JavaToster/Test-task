@@ -7,27 +7,20 @@ import com.example.Test_task.dto.containerOfNotes.ContainerOfNotesDTO;
 import com.example.Test_task.dto.note.*;
 import com.example.Test_task.models.comment.Comment;
 import com.example.Test_task.models.note.Note;
-import com.example.Test_task.security.PersonDetails;
 import com.example.Test_task.services.comment.CommentService;
 import com.example.Test_task.services.container.ContainerOfNotesService;
 import com.example.Test_task.services.note.NoteService;
 import com.example.Test_task.util.Convertor;
 import com.example.Test_task.util.exceptions.ApplicationRuntimeException;
-import com.example.Test_task.util.exceptions.person.PersonNotFoundException;
 import com.example.Test_task.util.exceptions.secutiry.ForbiddenException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/notes")
@@ -40,8 +33,8 @@ public class NoteController {
     private final ContainerOfNotesService containerOfNotesService;
 
     @GetMapping
-    public ResponseEntity<ContainerOfNotesDTO> showAllNotes(@RequestParam(value = "id", defaultValue = "-1") Long containerId) {
-        ContainerOfNotesDTO container = convertor.convertToContainerOfNotesDTO(containerOfNotesService.findByIdLastContainer(containerId));
+    public ResponseEntity<ContainerOfNotesDTO> showAllNotes(@RequestParam(value = "id", defaultValue = "0") Long containerId) {
+        ContainerOfNotesDTO container = convertor.convertToContainerOfNotesDTO(containerOfNotesService.findById(containerId));
         return new ResponseEntity<>(container, HttpStatus.OK);
     }
 

@@ -6,9 +6,6 @@ import com.example.Test_task.util.exceptions.containerOfNotes.ContainerOfNotesNo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class ContainerOfNotesDAO {
@@ -18,17 +15,8 @@ public class ContainerOfNotesDAO {
         return containerOfNotesRepository.findById(containerId).orElseThrow(() -> new ContainerOfNotesNotFoundException("container with "+containerId+" not found"));
     }
 
-    public ContainerOfNotes getLastContainerOfNotes(){
-        List<ContainerOfNotes> containers = containerOfNotesRepository.findAll();
-//        containers.forEach(container -> System.out.println(container.getId()));
-        if(containers.isEmpty() || containerIsFull(containers.getLast())){
-            return getEmptyContainer();
-        }
-        return containers.getLast();
-    }
-
-    public boolean containerIsFull(ContainerOfNotes container){
-        return container.getNotes().size() >= 2;
+    public long getLastIdOfContainer(){
+        return containerOfNotesRepository.findLast();
     }
 
     public ContainerOfNotes getEmptyContainer(){

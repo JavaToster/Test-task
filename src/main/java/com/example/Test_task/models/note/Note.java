@@ -8,12 +8,13 @@ import com.example.Test_task.util.enums.note.NoteStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "note")
-public class Note {
+public class Note implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

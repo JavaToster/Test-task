@@ -3,11 +3,14 @@ package com.example.Test_task.dto.containerOfNotes;
 import com.example.Test_task.dto.note.NoteDTO;
 import com.example.Test_task.models.container.ContainerOfNotes;
 import lombok.Data;
+import org.springframework.data.redis.core.RedisHash;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class ContainerOfNotesDTO {
+@RedisHash
+public class ContainerOfNotesDTO implements Serializable {
     private long id;
     private List<NoteDTO> notes;
 

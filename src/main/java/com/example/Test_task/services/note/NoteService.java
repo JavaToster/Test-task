@@ -8,6 +8,7 @@ import com.example.Test_task.dto.note.NewNoteDTO;
 import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 
+import com.example.Test_task.redis.ContainerOfNotesCacheManager;
 import com.example.Test_task.util.enums.note.NoteStatus;
 import com.example.Test_task.util.exceptions.note.NoteNotFoundException;
 import com.example.Test_task.util.exceptions.note.NoteValidateException;
@@ -33,6 +34,7 @@ public class NoteService {
     private final NoteDAO noteDAO;
     private final NoteDTOValidator noteDTOValidator;
     private final ContainerOfNotesDAO containerOfNotesDAO;
+    private final ContainerOfNotesCacheManager containerOfNotesCacheManager;
 
     public List<Note> findAllNotes() {
         return noteDAO.findAll();
@@ -43,11 +45,12 @@ public class NoteService {
         Note newNote = new Note(newNoteDTO.getTitle(), newNoteDTO.getDescription(),
                 personDAO.findByEmail(email));
 
-        ContainerOfNotes containerOfNotes = containerOfNotesDAO.getLastContainerOfNotes();
+        ContainerOfNotes containerOfNotes = containerOfNotesCacheManager.findById(containerOfNotesDAO.getLastIdOfContainer());
         setNoteContainer(containerOfNotes, newNote);
 
         noteDAO.save(newNote);
         containerOfNotesDAO.save(containerOfNotes);
+        containerOfNotesCacheManager.updateOrSave(containerOfNotes);
         return newNote;
     }
 
