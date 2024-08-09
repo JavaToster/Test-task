@@ -15,3 +15,7 @@ spring.mvc.hidden.method.filter.enabled=****
 
 #For html views
 spring.thymeleaf.prefix=****
+
+#JWT
+security.jwt.secret=****
+
