@@ -36,17 +36,13 @@ public class NoteService {
     private final ContainerOfNotesDAO containerOfNotesDAO;
     private final ContainerOfNotesCacheManager containerOfNotesCacheManager;
 
-    public List<Note> findAllNotes() {
-        return noteDAO.findAll();
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Note createNote(NewNoteDTO newNoteDTO, String email){
         Note newNote = new Note(newNoteDTO.getTitle(), newNoteDTO.getDescription(),
                 personDAO.findByEmail(email));
 
         ContainerOfNotes containerOfNotes = containerOfNotesCacheManager.findById(containerOfNotesDAO.getLastIdOfContainer());
-        setNoteContainer(containerOfNotes, newNote);
+        setContainerForNoteAndNoteForContainer(containerOfNotes, newNote);
 
         noteDAO.save(newNote);
         containerOfNotesDAO.save(containerOfNotes);
@@ -134,7 +130,7 @@ public class NoteService {
         noteDAO.delete(note);
     }
 
-    private void setNoteContainer(ContainerOfNotes container, Note note){
+    private void setContainerForNoteAndNoteForContainer(ContainerOfNotes container, Note note){
         if(container.getNotes() == null || container.getNotes().isEmpty()){
             container.setNotes(Collections.singletonList(note));
             note.setContainer(container);
