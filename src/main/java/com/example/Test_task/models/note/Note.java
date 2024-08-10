@@ -51,6 +51,10 @@ public class Note implements Serializable {
 
     public Note(){}
 
+    public Note(long id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Note{" +

@@ -18,4 +18,10 @@ public class CacheableContainerOfNotes implements Serializable {
     public ContainerOfNotes getAsContainer(){
         return new ContainerOfNotes(this.id, this.notes);
     }
+
+    public CacheableContainerOfNotes(long id){
+        this.id = id;
+    }
+
+    public CacheableContainerOfNotes(){}
 }

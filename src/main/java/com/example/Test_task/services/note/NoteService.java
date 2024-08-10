@@ -10,6 +10,7 @@ import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 
 import com.example.Test_task.redis.ContainerOfNotesCacheManager;
+import com.example.Test_task.util.enums.note.NotePriority;
 import com.example.Test_task.util.enums.note.NoteStatus;
 import com.example.Test_task.util.exceptions.note.NoteNotFoundException;
 import com.example.Test_task.util.exceptions.note.NoteValidateException;
@@ -117,6 +118,30 @@ public class NoteService {
         int idInNotes = container.getNotes().indexOf(note);
 
         note.setStatus(NoteStatus.valueOf(editNoteDTO.getStatus()));
+        container.getNotes().set(idInNotes, note);
+
+        containerOfNotesDAO.save(container);
+        containerOfNotesCacheManager.updateOrSave(container);
+        noteDAO.save(note);
+        return note;
+    }
+
+    public Note editPriority(long id, String editorEmail, EditNoteDTO editNoteDTO, BindingResult errors){
+        Note note = noteDAO.findById(id);
+
+        if (!isAuthor(note, editorEmail)){
+            throw new ForbiddenException("you can't edit priority");
+        }
+
+        noteDTOValidator.validateEditNoteDTO(editNoteDTO, errors);
+        if(errors.hasFieldErrors("priority")){
+            throw new NoteValidateException(errors.getFieldError("priority").getDefaultMessage());
+        }
+
+        ContainerOfNotes container = note.getContainer();
+        int idInNotes = container.getNotes().indexOf(note);
+
+        note.setPriority(NotePriority.valueOf(editNoteDTO.getPriority()));
         container.getNotes().set(idInNotes, note);
 
         containerOfNotesDAO.save(container);

@@ -72,6 +72,14 @@ public class NoteController {
         return new ResponseEntity<>(convertor.convertToNoteDTO(editedNote), HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/edit_priority")
+    public ResponseEntity<NoteDTO> editNotePriority(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO,
+                                                    Principal principal, BindingResult errors){
+        Note editedNote = noteService.editPriority(id, principal.getName(), editNoteDTO, errors);
+        return new ResponseEntity<>(convertor.convertToNoteDTO(editedNote), HttpStatus.OK);
+    }
+
+
     @PostMapping("/{id}/set_executor")
     public ResponseEntity<NoteDTO> setExecutor(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO, Principal principal,
                                                BindingResult errors){

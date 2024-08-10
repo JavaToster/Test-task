@@ -8,4 +8,5 @@ public class EditNoteDTO {
     private String description;
     private String executorEmail;
     private String status;
+    private String priority;
 }

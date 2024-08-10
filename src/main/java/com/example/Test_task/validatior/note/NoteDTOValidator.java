@@ -10,7 +10,6 @@ import org.springframework.validation.Errors;
 @Component
 public class NoteDTOValidator {
     public void validateEditNoteDTO(EditNoteDTO editNoteDTO, Errors errors){
-        System.out.println(editNoteDTO.getStatus());
         if(editNoteDTO.getTitle() == null || editNoteDTO.getTitle().isBlank()){
             errors.rejectValue("title", "", "title should be not empty");
         }
@@ -25,6 +24,10 @@ public class NoteDTOValidator {
 
         if(editNoteDTO.getStatus() == null || editNoteDTO.getStatus().isBlank()){
             errors.rejectValue("status", "", "status should be not empty");
+        }
+
+        if(editNoteDTO.getPriority() == null || editNoteDTO.getPriority().isBlank()){
+            errors.rejectValue("priority", "", "priority should be not empty");
         }
     }
 

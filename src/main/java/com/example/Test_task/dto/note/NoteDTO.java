@@ -15,4 +15,12 @@ public class NoteDTO {
     private PersonDTO executor;
     private NotePriority priority;
     private NoteStatus status;
+
+    public NoteDTO(String title, String description) {
+        this.title = title;
+        this.description = description;
+        this.author = author;
+    }
+
+    public NoteDTO(){}
 }
