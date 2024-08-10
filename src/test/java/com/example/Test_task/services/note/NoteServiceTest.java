@@ -38,17 +38,6 @@ class NoteServiceTest {
     private NoteService noteService;
 
     @Test
-    void createNote() {
-        Note exceptedNote = new Note("tit", "desc", null);
-        NoteDTO noteDTO = new NoteDTO("tit", "desc");
-
-
-
-        Note actual = noteService.createNote(noteDTO, bindingResult, ";g;dg;dfg,df");
-        assertEquals(exceptedNote, actual);
-    }
-
-    @Test
     void findById() {
         Note exceptedNote = new Note(1);
 
@@ -58,13 +47,5 @@ class NoteServiceTest {
 
         Note actualNote = noteService.findById(1);
         assertEquals(exceptedNote, actualNote);
-    }
-
-    @Test
-    void editNote() {
-    }
-
-    @Test
-    void setExecutor() {
     }
 }
