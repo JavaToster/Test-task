@@ -213,7 +213,7 @@ public class NoteService {
         noteDAO.delete(note);
     }
 
-    private void setNoteContainer(ContainerOfNotes container, Note note){
+    private void setContainerForNoteAndNoteForContainer(ContainerOfNotes container, Note note){
         if(container.getNotes() == null || container.getNotes().isEmpty()){
             container.setNotes(Collections.singletonList(note));
             note.setContainer(container);

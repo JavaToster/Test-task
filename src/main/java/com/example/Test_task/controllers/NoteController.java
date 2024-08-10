@@ -12,21 +12,23 @@ import com.example.Test_task.services.container.ContainerOfNotesService;
 import com.example.Test_task.services.note.NoteService;
 import com.example.Test_task.util.Convertor;
 import com.example.Test_task.util.exceptions.ApplicationRuntimeException;
-import com.example.Test_task.util.exceptions.note.NoteValidateException;
 import com.example.Test_task.util.exceptions.secutiry.ForbiddenException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
+@Tag(
+        name = "main controller in application",
+        description = "here creating new notes, update and delete notes"
+)
 @RestController
 @RequestMapping("/notes")
 @RequiredArgsConstructor
@@ -43,6 +45,10 @@ public class NoteController {
         return new ResponseEntity<>(container, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "method create new note",
+            description = "create new note and return createdNoteDTO, if request is valid, else throw ApplicationRuntimeException"
+    )
     @PostMapping("/create")
     public ResponseEntity<CreatedNoteDTO> create(@RequestBody @Valid NoteDTO noteDTO, Principal principal,
                                                  BindingResult errors) {
@@ -50,12 +56,20 @@ public class NoteController {
         return new ResponseEntity<>(convertor.convertToCreatedNoteDTO(createdNote), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "return note by id",
+            description = "return NoteDTO"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<NoteDTO> showNote(@PathVariable("id") long id) {
         NoteDTO noteDTO = convertor.convertToNoteDTO(noteService.findById(id));
         return new ResponseEntity<>(noteDTO, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "method edit note by id and return edited note",
+            description = "if info is validate - return edited note DTO, else throw ApplicationRuntimeException"
+    )
     @PostMapping("/{id}/edit")
     public ResponseEntity<NoteDTO> editNote(@PathVariable("id") long id, @RequestBody EditNoteDTO editNote, Principal principal,
                                             BindingResult errors) {
@@ -65,6 +79,11 @@ public class NoteController {
         return new ResponseEntity<>(convertor.convertToNoteDTO(note), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "for update status of note",
+            description = "it can do executor or author of note. Validate request dto, is valid return edited note dto else throw ApplicationRuntimeException. " +
+                    "Also if person is not executor of author -> throw Forbidden exception"
+    )
     @PostMapping("/{id}/edit_status")
     public ResponseEntity<NoteDTO> editNoteStatus(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO,
                                                   Principal principal, BindingResult errors){
@@ -72,6 +91,10 @@ public class NoteController {
         return new ResponseEntity<>(convertor.convertToNoteDTO(editedNote), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "for set executor",
+            description = "only author of notes can set executor. If person is not author, throw Forbidden exception"
+    )
     @PostMapping("/{id}/edit_priority")
     public ResponseEntity<NoteDTO> editNotePriority(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO,
                                                     Principal principal, BindingResult errors){
@@ -87,12 +110,20 @@ public class NoteController {
         return new ResponseEntity<>(convertor.convertToNoteDTO(editedNote), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "for delete note",
+            description = "only author can delete note, else throw Forbidden exception"
+    )
     @PostMapping("/{id}/delete")
     public HttpStatus delete(@PathVariable("id") long id, Principal principal){
         noteService.delete(id, principal.getName());
         return HttpStatus.OK;
     }
 
+    @Operation(
+            summary = "for add comment to note",
+            description = "everyone can add comment to note, validate request, if all is good, return created comment dto"
+    )
     @PostMapping("/{id}/add_comment")
     public ResponseEntity<CommentDTO> addCommentToNote(@PathVariable("id") long noteId, @RequestBody @Valid CreateCommentDTO createCommentDTO, Principal principal,
                                                        BindingResult errors){
