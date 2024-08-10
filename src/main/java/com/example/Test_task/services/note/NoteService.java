@@ -9,6 +9,7 @@ import com.example.Test_task.dto.note.NoteDTO;
 import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 
+import com.example.Test_task.models.person.Person;
 import com.example.Test_task.redis.ContainerOfNotesCacheManager;
 import com.example.Test_task.util.enums.note.NotePriority;
 import com.example.Test_task.util.enums.note.NoteStatus;
@@ -117,7 +118,11 @@ public class NoteService {
         ContainerOfNotes container = note.getContainer();
         int idInNotes = container.getNotes().indexOf(note);
 
-        note.setStatus(NoteStatus.valueOf(editNoteDTO.getStatus()));
+        try {
+            note.setStatus(NoteStatus.valueOf(editNoteDTO.getStatus()));
+        }catch (IllegalArgumentException e){
+            throw new NoteValidateException("invalid status");
+        }
         container.getNotes().set(idInNotes, note);
 
         containerOfNotesDAO.save(container);
@@ -141,7 +146,11 @@ public class NoteService {
         ContainerOfNotes container = note.getContainer();
         int idInNotes = container.getNotes().indexOf(note);
 
-        note.setPriority(NotePriority.valueOf(editNoteDTO.getPriority()));
+        try {
+            note.setPriority(NotePriority.valueOf(editNoteDTO.getPriority()));
+        }catch (IllegalArgumentException e){
+            throw new NoteValidateException("invalid priority");
+        }
         container.getNotes().set(idInNotes, note);
 
         containerOfNotesDAO.save(container);
@@ -151,7 +160,21 @@ public class NoteService {
     }
 
     private boolean isExecutorOrAuthor(Note note, String editorEmail) {
-        return note.getExecutor().getEmail().equals(editorEmail) || note.getAuthor().getEmail().equals(editorEmail);
+        Person executor  = note.getExecutor();
+        Person author = note.getAuthor();
+        if (executor != null){
+            if(executor.getEmail().equals(editorEmail)){
+                return true;
+            }
+        }
+
+        if(author != null){
+            if(author.getEmail().equals(editorEmail)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Note setExecutor(long id, String editorEmail, EditNoteDTO editNoteDTO, BindingResult errors) {
