@@ -33,4 +33,19 @@ public class Comment {
         this.owner = owner;
         this.creationDate = new Date();
     }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                ", creationDate=" + creationDate +
+                ", note=" + note +
+                ", owner=" + owner +
+                '}';
+    }
+
+    public boolean equals(Object o){
+        return o.toString().equals(toString());
+    }
 }

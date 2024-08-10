@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@RedisHash
+@RedisHash(timeToLive = 120)
 public class ContainerOfNotesDTO implements Serializable {
     private long id;
     private List<NoteDTO> notes;

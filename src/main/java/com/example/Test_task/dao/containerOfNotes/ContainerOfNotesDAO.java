@@ -5,6 +5,10 @@ import com.example.Test_task.repositories.containerOfNotes.ContainerOfNotesRepos
 import com.example.Test_task.util.exceptions.containerOfNotes.ContainerOfNotesNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -15,13 +19,14 @@ public class ContainerOfNotesDAO {
         return containerOfNotesRepository.findById(containerId).orElseThrow(() -> new ContainerOfNotesNotFoundException("container with "+containerId+" not found"));
     }
 
-    public long getLastIdOfContainer(){
-        return containerOfNotesRepository.findLast();
+    public ContainerOfNotes getLast(){
+        return containerOfNotesRepository.findLast().orElse(getEmptyContainer());
     }
 
     public ContainerOfNotes getEmptyContainer(){
-        return new ContainerOfNotes();
+        return new ContainerOfNotes(0, Collections.emptyList());
     }
+
     public void save(ContainerOfNotes container){
         containerOfNotesRepository.save(container);
     }

@@ -5,16 +5,14 @@ import com.example.Test_task.dto.ErrorResponseDTO;
 import com.example.Test_task.dto.auth.AuthenticationDTO;
 import com.example.Test_task.dto.auth.PersonRegisterRequestDTO;
 import com.example.Test_task.dto.auth.RegisterResponseDTO;
-import com.example.Test_task.security.JwtUtil;
+import com.example.Test_task.security.AuthUtil;
 import com.example.Test_task.services.person.PersonService;
 import com.example.Test_task.util.exceptions.person.PersonRegisterException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final PersonService personService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid PersonRegisterRequestDTO personDTO, BindingResult bindingResult){
@@ -35,14 +32,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> performLogin(@RequestBody AuthenticationDTO authDTO){
-        UsernamePasswordAuthenticationToken authInputToken =
-                new UsernamePasswordAuthenticationToken(authDTO.getEmail(),
-                        authDTO.getPassword());
-
-        authenticationManager.authenticate(authInputToken);
-
-        String token = jwtUtil.generateToken(authDTO.getEmail());
+    public ResponseEntity<Map<String, String>> performLogin(@RequestBody @Valid AuthenticationDTO authDTO, BindingResult errors){
+        String token = authUtil.getJWTToken(authDTO, errors);
         return new ResponseEntity<>(Map.of("jwt_token", token), HttpStatus.OK);
     }
 
@@ -58,6 +49,6 @@ public class AuthController {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponseDTO> exceptionHandle(BadCredentialsException e){
-        return new ResponseEntity<>(new ErrorResponseDTO("bad credentials"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

@@ -5,6 +5,7 @@ import com.example.Test_task.dao.note.NoteDAO;
 import com.example.Test_task.dao.person.PersonDAO;
 import com.example.Test_task.dto.note.EditNoteDTO;
 import com.example.Test_task.dto.note.NewNoteDTO;
+import com.example.Test_task.dto.note.NoteDTO;
 import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.models.note.Note;
 
@@ -36,16 +37,21 @@ public class NoteService {
     private final ContainerOfNotesDAO containerOfNotesDAO;
     private final ContainerOfNotesCacheManager containerOfNotesCacheManager;
 
-    public List<Note> findAllNotes() {
-        return noteDAO.findAll();
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Note createNote(NewNoteDTO newNoteDTO, String email){
-        Note newNote = new Note(newNoteDTO.getTitle(), newNoteDTO.getDescription(),
+    public Note createNote(NoteDTO noteDTO, BindingResult errors, String email){
+        noteDTOValidator.validateNoteDTO(noteDTO, errors);
+        if(errors.hasErrors()){
+            List<String> errorList = new ArrayList<>();
+            for(ObjectError error: errors.getAllErrors()){
+                errorList.add(error.getDefaultMessage());
+            }
+            throw new NoteValidateException(errorList.stream().collect(Collectors.joining(";")));
+        }
+
+        Note newNote = new Note(noteDTO.getTitle(), noteDTO.getDescription(),
                 personDAO.findByEmail(email));
 
-        ContainerOfNotes containerOfNotes = containerOfNotesCacheManager.findById(containerOfNotesDAO.getLastIdOfContainer());
+        ContainerOfNotes containerOfNotes = containerOfNotesDAO.getLast();
         setNoteContainer(containerOfNotes, newNote);
 
         noteDAO.save(newNote);
@@ -76,11 +82,18 @@ public class NoteService {
             throw new NoteValidateException(errorsList.stream().collect(Collectors.joining(";")));
         }
 
+        ContainerOfNotes container = note.getContainer();
+        int idInNotes = container.getNotes().indexOf(note);
+
         note.setTitle(editNoteDTO.getTitle());
         note.setDescription(editNoteDTO.getDescription());
         note.setExecutor(personDAO.findByEmail(editNoteDTO.getExecutorEmail()));
         note.setStatus(NoteStatus.valueOf(editNoteDTO.getStatus()));
 
+        container.getNotes().set(idInNotes, note);
+
+        containerOfNotesDAO.save(container);
+        containerOfNotesCacheManager.updateOrSave(container);
         noteDAO.save(note);
         return note;
     }
@@ -100,10 +113,14 @@ public class NoteService {
         if(errors.hasFieldErrors("status")){
             throw new NoteValidateException(errors.getFieldError("status").getDefaultMessage());
         }
+        ContainerOfNotes container = note.getContainer();
+        int idInNotes = container.getNotes().indexOf(note);
 
-        System.out.println(errors.getAllErrors());
         note.setStatus(NoteStatus.valueOf(editNoteDTO.getStatus()));
+        container.getNotes().set(idInNotes, note);
 
+        containerOfNotesDAO.save(container);
+        containerOfNotesCacheManager.updateOrSave(container);
         noteDAO.save(note);
         return note;
     }
@@ -112,15 +129,25 @@ public class NoteService {
         return note.getExecutor().getEmail().equals(editorEmail) || note.getAuthor().getEmail().equals(editorEmail);
     }
 
-    public Note setExecutor(long id, String editorEmail, EditNoteDTO editNoteDTO) {
+    public Note setExecutor(long id, String editorEmail, EditNoteDTO editNoteDTO, BindingResult errors) {
         Note note = noteDAO.findById(id);
 
         if(!isAuthor(note, editorEmail)){
             throw new ForbiddenException("you can't set executor");
         }
 
+        noteDTOValidator.validateEditNoteDTO(editNoteDTO, errors);
+        if(errors.hasFieldErrors("executorEmail")){
+            throw new NoteValidateException(errors.getFieldError("executorEmail").getField() + " - " + errors.getFieldError("executorEmail").getDefaultMessage());
+        }
+        ContainerOfNotes container = note.getContainer();
+        int idInNotes = container.getNotes().indexOf(note);
+
         note.setExecutor(personDAO.findByEmail(editNoteDTO.getExecutorEmail()));
 
+        container.getNotes().set(idInNotes, note);
+        containerOfNotesDAO.save(container);
+        containerOfNotesCacheManager.updateOrSave(container);
         noteDAO.save(note);
         return note;
     }
@@ -131,6 +158,10 @@ public class NoteService {
             throw new ForbiddenException("you can't delete this note");
         }
 
+        ContainerOfNotes container = note.getContainer();
+        container.getNotes().remove(note);
+        containerOfNotesDAO.save(container);
+        containerOfNotesCacheManager.updateOrSave(container);
         noteDAO.delete(note);
     }
 

@@ -1,6 +1,7 @@
 package com.example.Test_task.services.container;
 
 import com.example.Test_task.dao.containerOfNotes.ContainerOfNotesDAO;
+import com.example.Test_task.dto.containerOfNotes.ContainerOfNotesDTO;
 import com.example.Test_task.models.container.ContainerOfNotes;
 import com.example.Test_task.redis.ContainerOfNotesCacheManager;
 import com.example.Test_task.util.exceptions.containerOfNotes.ContainerOfNotesNotFoundException;
@@ -17,11 +18,15 @@ public class ContainerOfNotesService {
 
     public ContainerOfNotes findById(Long containerId){
         if (containerId  == 0){
-            return containerOfNotesCacheManager.findById(containerOfNotesDAO.getLastIdOfContainer());
+            ContainerOfNotes container = containerOfNotesDAO.getLast();
+            if(container.getId() != 0){
+                containerOfNotesCacheManager.updateOrSave(container);
+            }
+            return container;
         }
 
         try{
-            return containerOfNotesCacheManager.findById(containerId);
+            return containerOfNotesCacheManager.findById(containerId).getAsContainer();
         }catch (ContainerOfNotesNotFoundException e){
             return containerOfNotesDAO.getEmptyContainer();
         }

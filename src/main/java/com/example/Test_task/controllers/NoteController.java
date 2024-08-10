@@ -12,15 +12,20 @@ import com.example.Test_task.services.container.ContainerOfNotesService;
 import com.example.Test_task.services.note.NoteService;
 import com.example.Test_task.util.Convertor;
 import com.example.Test_task.util.exceptions.ApplicationRuntimeException;
+import com.example.Test_task.util.exceptions.note.NoteValidateException;
 import com.example.Test_task.util.exceptions.secutiry.ForbiddenException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/notes")
@@ -39,8 +44,9 @@ public class NoteController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<CreatedNoteDTO> create(@RequestBody NewNoteDTO newNoteDTO, Principal principal) {
-        Note createdNote = noteService.createNote(newNoteDTO, principal.getName());
+    public ResponseEntity<CreatedNoteDTO> create(@RequestBody @Valid NoteDTO noteDTO, Principal principal,
+                                                 BindingResult errors) {
+        Note createdNote = noteService.createNote(noteDTO, errors, principal.getName());
         return new ResponseEntity<>(convertor.convertToCreatedNoteDTO(createdNote), HttpStatus.OK);
     }
 
@@ -67,8 +73,9 @@ public class NoteController {
     }
 
     @PostMapping("/{id}/set_executor")
-    public ResponseEntity<NoteDTO> setExecutor(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO, Principal principal){
-        Note editedNote = noteService.setExecutor(id, principal.getName(), editNoteDTO);
+    public ResponseEntity<NoteDTO> setExecutor(@PathVariable("id") long id, @RequestBody EditNoteDTO editNoteDTO, Principal principal,
+                                               BindingResult errors){
+        Note editedNote = noteService.setExecutor(id, principal.getName(), editNoteDTO, errors);
         return new ResponseEntity<>(convertor.convertToNoteDTO(editedNote), HttpStatus.OK);
     }
 

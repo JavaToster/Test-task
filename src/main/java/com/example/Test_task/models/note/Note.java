@@ -6,7 +6,9 @@ import com.example.Test_task.models.person.Person;
 import com.example.Test_task.util.enums.note.NotePriority;
 import com.example.Test_task.util.enums.note.NoteStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -49,7 +51,18 @@ public class Note implements Serializable {
 
     public Note(){}
 
-    public String getExecutorAsString(){
-        return executor == null ? "none" : executor.getEmail();
+    @Override
+    public String toString() {
+        return "Note{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", author=" + author +
+                ", executor=" + executor +
+                ", priority=" + priority +
+                ", comments=" + comments +
+                ", container=" + container +
+                '}';
     }
 }
